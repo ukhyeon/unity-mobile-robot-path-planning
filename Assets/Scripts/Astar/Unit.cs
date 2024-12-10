@@ -1,77 +1,60 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
-
-public class Unit : MonoBehaviour
+namespace Astar
 {
-    public Transform target;
-    public float speed = 5;
-    public float turnSpeed = 3;
+	
+public class Unit : MonoBehaviour {
 
-    private Vector3[] path;
-    private int targetIndex;
 
-    void Start()
-    {
-        PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
-    }
+	public Transform target;
+	public float speed = 20.0f;
+	Vector3[] path;
+	int targetIndex;
 
-    void OnPathFound(Vector3[] newPath, bool pathSuccessful)
-    {
-        if (pathSuccessful)
-        {
-            path = newPath;
-            StopCoroutine("FollowPath");
-            StartCoroutine("FollowPath");
-        }
-    }
+	void Start() {
+		PathRequestManager.RequestPath(transform.position,target.position, OnPathFound);
+	}
 
-    IEnumerator FollowPath()
-    {
-        Vector3 currentWaypoint = path[0];
+	public void OnPathFound(Vector3[] newPath, bool pathSuccessful) {
+		if (pathSuccessful) {
+			path = newPath;
+			targetIndex = 0;
+			StopCoroutine("FollowPath");
+			StartCoroutine("FollowPath");
+		}
+	}
 
-        while (true)
-        {
-            if (transform.position == currentWaypoint)
-            {
-                targetIndex++;
-                if (targetIndex >= path.Length)
-                {
-                    yield break;
-                }
-                currentWaypoint = path[targetIndex];
-            }
+	IEnumerator FollowPath() {
+		Vector3 currentWaypoint = path[0];
+		while (true) {
+			if (transform.position == currentWaypoint) {
+				targetIndex ++;
+				if (targetIndex >= path.Length) {
+					yield break;
+				}
+				currentWaypoint = path[targetIndex];
+			}
 
-            // Move towards the current waypoint
-            transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, speed * Time.deltaTime);
+			transform.position = Vector3.MoveTowards(transform.position,currentWaypoint,speed * Time.deltaTime);
+			yield return null;
 
-            // Rotate towards the current waypoint
-            Vector3 direction = (currentWaypoint - transform.position).normalized;
-            Quaternion lookRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, turnSpeed * Time.deltaTime);
+		}
+	}
 
-            yield return null;
-        }
-    }
+	public void OnDrawGizmos() {
+		if (path != null) {
+			for (int i = targetIndex; i < path.Length; i ++) {
+				Gizmos.color = Color.black;
+				Gizmos.DrawCube(path[i], Vector3.one);
 
-    void OnDrawGizmos()
-    {
-        if (path != null)
-        {
-            for (int i = targetIndex; i < path.Length; i++)
-            {
-                Gizmos.color = Color.black;
-                Gizmos.DrawCube(path[i], Vector3.one);
-
-                if (i == targetIndex)
-                {
-                    Gizmos.DrawLine(transform.position, path[i]);
-                }
-                else
-                {
-                    Gizmos.DrawLine(path[i - 1], path[i]);
-                }
-            }
-        }
-    }
+				if (i == targetIndex) {
+					Gizmos.DrawLine(transform.position, path[i]);
+				}
+				else {
+					Gizmos.DrawLine(path[i-1],path[i]);
+				}
+			}
+		}
+	}
+}
 }

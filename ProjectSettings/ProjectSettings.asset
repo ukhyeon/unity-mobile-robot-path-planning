@@ -910,11 +910,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: 
+  cloudProjectId: 3be2f172-63ba-4b61-b1ac-7a66e71fbf90
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
-  organizationId: 
+  projectName: ukhyeon
+  organizationId: unity_6xgsq6
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 
