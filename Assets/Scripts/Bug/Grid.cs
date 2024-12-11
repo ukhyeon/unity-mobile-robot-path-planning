@@ -19,6 +19,12 @@ public class Grid : MonoBehaviour {
         gridSizeY = Mathf.RoundToInt(gridWorldSize.y/nodeDiameter);
         CreateGrid();
     }
+    public int MaxSize {
+            get {
+                // 그리드 전체 노드 수 반환
+                return gridSizeX * gridSizeY; // 100 * 100 
+            }
+        }
     void CreateGrid() {
         grid = new Node[gridSizeX,gridSizeY];
         Vector3 worldBottomLeft = transform.position - Vector3.right * gridWorldSize.x/2 - Vector3.forward * gridWorldSize.y/2;
@@ -31,26 +37,19 @@ public class Grid : MonoBehaviour {
             }
         }
     }
+    public List<Node> AllNodes {
+        get {
+            List<Node> allNodes = new List<Node>();
+            for (int x = 0; x < gridSizeX; x++) {
+                for (int y = 0; y < gridSizeY; y++) {
+                    allNodes.Add(grid[x, y]);
+                }
+            }
+            return allNodes;
+        }
+    }
 
-    // public List<Node> GetNeighbours(Node node) {
-    //     List<Node> neighbours = new List<Node>();
 
-    //     for (int x = -1; x <= 1; x++) {
-
-    //             int checkX = node.gridX + x;
-    //             int checkY = node.gridY;
-
-    //             if (x == 0){
-    //                 checkY = checkY + 1;
-    //             }
-
-    //             if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY) {
-    //                 neighbours.Add(grid[checkX,checkY]);
-    //             }
-    //     }
-
-    //     return neighbours;
-    // }
 
     public List<Node> GetNeighbours(Node node) {
             // 특정 노드의 이웃 노드들을 찾음

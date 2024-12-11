@@ -11,13 +11,16 @@ namespace base2 {
         public float raycastDist_obstacle_digonal =3f;
 
         private Grid grid;
+        //Grid gird;
         private Node currentNode;
+        private Node previousCheckNode;
         private Node nextNode;
         private Node targetNode;
+        private Node CheckNode;
         private List<Node> adjNode;
 
         private bool isFollowingObstacle = false; // 장애물 외곽을 따라가는 중인지 여부
-        private float closestDistance = float.MaxValue; // 최단 거리 기록
+        private int closestDistance = int.MaxValue; // 최단 거리 기록
         private bool rotated = false;
         private bool left_obstacle =false;
         private bool right_obstacle = false;
@@ -33,12 +36,20 @@ namespace base2 {
         private Vector3 forward_vector = new Vector3(0,0,1);
         private Vector3 forward_vector_test = new Vector3(0,1,0);
         private Vector3 backward_vector = new Vector3(0,0,-1);
+        private bool followobstacle_once=true; 
         int groundMove = 1;
+        
 
         void Start() {
             grid = FindObjectOfType<Grid>();
-
+            CheckNode=grid.NodeFromWorldPoint(transform.position);
+            previousCheckNode = grid.NodeFromWorldPoint(transform.position);
+            targetNode=grid.NodeFromWorldPoint(target.position);
         }
+        // void Awake()
+        // {
+        //     grid = GetComponent<Grid>();
+        // }
 
         void Update() {
             MoveTowardsTarget();
@@ -46,23 +57,9 @@ namespace base2 {
 
         void MoveTowardsTarget() {
             currentNode = grid.NodeFromWorldPoint(transform.position);
-            adjNode = grid.GetNeighbours(currentNode); // 타겟 노드좌표
-
-            // if (!isFollowingObstacle) { // 장애물을 따라가지 않는 상황
-            //     // 직선 경로로 이동
-            //     if (!IsPathClear(transform.position, target.position)) { // 현재 노드와 목표 노드 사이의 장애물이 없는지 확인
-            //         MoveDirectlyToTarget(target.position);                   // 없다면 목표 노드로 직선 방향 전진
-            //     } 
-            //     else {
-            //         //장애물에 부딪히면 외곽을 따라 이동
-            //         isFollowingObstacle = true;                         // 현재 노드와 목표 노드 사이의 장애물이 있다면 장애물을 외곽을 따라감
-            //     }
-            // } 
-            // else {
-            //     // 장애물 외곽을 따라 이동
-            //     FollowObstacle();                                       
+            adjNode = grid.GetNeighbours(currentNode); // 타겟 노드좌표                              
             // }!IsPathClear(transform.position, target.position)
-            if (false) { // 현재 노드와 목표 노드 사이의 장애물이 없는지 확인
+            if (!IsPathClear(transform.position, target.position) && followobstacle_once ==true) { // 현재 노드와 목표 노드 사이의 장애물이 없는지 확인
                     MoveDirectlyToTarget(target.position);                   // 없다면 목표 노드로 직선 방향 전진
                     print("Move to target");
                 } 
@@ -82,12 +79,14 @@ namespace base2 {
         }
 
         void FollowObstacle() {
+            followobstacle_once=false;
             // 장애물의 외곽을 따라 이동
             List<Node> neighbours = grid.GetNeighbours(currentNode); //인접 노드 리스트
             // 왼쪽 앞 오른쪽 세개의 노드중, 앞쪽 노드가 walkable 이라면 계속해서 앞쪽으로 움직임, 이후 왼쪽 노드가 walkable 이라면 왼쪽 노드로 움직임.
 
-
-            Node nextNode = null;
+            int iter = 0;
+            int maxiter =2;
+            bool nextNode = false;
             float shortestDistance = float.MaxValue;
             forward_obstacle = IsObstacle(currentNode.worldPosition,currentNode.worldPosition+forward_vector);
             left_obstacle = IsObstacle(currentNode.worldPosition,currentNode.worldPosition+left_vector);
@@ -97,117 +96,149 @@ namespace base2 {
             left_backward_obstacle = IsObstacle2(currentNode.worldPosition,currentNode.worldPosition+left_vector+backward_vector);
             right_forward_obstacle = IsObstacle2(currentNode.worldPosition,currentNode.worldPosition+right_vector+forward_vector);
             right_backward_obstacle = IsObstacle2(currentNode.worldPosition,currentNode.worldPosition+right_vector+backward_vector);
-            print($"forward: {forward_obstacle}, left: {left_obstacle}, right: {right_obstacle}, back: {backward_obstacle} ");
-            print($"l_f: {left_forward_obstacle}, l_b: {left_backward_obstacle}, r_f: {right_forward_obstacle}, r_b: {right_backward_obstacle} ");
+            //print($"forward:   {forward_obstacle},  left:   {left_obstacle},   right:   {right_obstacle},   back:   {backward_obstacle} ");
+            //print($"l_f:  {left_forward_obstacle}, l_b: {left_backward_obstacle},  r_f:  {right_forward_obstacle},  r_b:  {right_backward_obstacle} ");
             
             // 0: 왼쪽, 1: 아래, 2: 위쪽, 3: 오른쪽 
             if (forward_obstacle){
-                if (neighbours[2].walkable){transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);}
-                if (neighbours[0].walkable){transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition+forward_vector, moveSpeed * Time.deltaTime);}
+                if (neighbours[0].walkable){
+                    nextNode = true;
+                    transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
+                    if(closestDistance > GetDistance(neighbours[0],targetNode)){
+                        closestDistance= GetDistance(neighbours[0],targetNode);
+                        CheckNode=grid.NodeFromWorldPoint(transform.position);
+                        print("갱신! ");
+                        }
+                    }
             }
             if (left_obstacle){
-                if (neighbours[1].walkable)
-                nextNode = neighbours[1]; // 아래 노드
-                transform.position = Vector3.MoveTowards(transform.position, nextNode.worldPosition, moveSpeed * Time.deltaTime);
-                
+                if (neighbours[1].walkable){
+                nextNode=true;
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
+                if(closestDistance > GetDistance(neighbours[1],targetNode)){
+                    closestDistance= GetDistance(neighbours[1],targetNode);
+                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                    print("갱신! ");
+                    }
+                //print("left_obstacle");
+                }
+                //print(neighbours[1].walkable);
             }
             if (right_obstacle){
                 if (neighbours[2].walkable){
-                nextNode = neighbours[2]; //위쪽 노드
-                transform.position = Vector3.MoveTowards(transform.position, nextNode.worldPosition, moveSpeed * Time.deltaTime);
+                nextNode = true;
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
+                if(closestDistance > GetDistance(neighbours[2],targetNode)){
+                    closestDistance= GetDistance(neighbours[2],targetNode);
+                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                    print("갱신! ");
+                    }
+                //print("right_obstacle");
             }
                 
             }
             if (backward_obstacle){
                 if (neighbours[3].walkable){
-                nextNode = neighbours[3]; //오른쪽?
-                transform.position = Vector3.MoveTowards(transform.position, nextNode.worldPosition, moveSpeed * Time.deltaTime);
+                nextNode = true;
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
+                if(closestDistance > GetDistance(neighbours[3],targetNode)){
+                    closestDistance= GetDistance(neighbours[3],targetNode);
+                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                    print("갱신! ");
+                }
+                //print("backward_obstacle");
                 }
             }
             if (left_forward_obstacle){
+
                 if (neighbours[0].walkable){
-                nextNode=neighbours[0];
-                transform.position = Vector3.MoveTowards(transform.position, nextNode.worldPosition, moveSpeed * Time.deltaTime);
+                nextNode = true;
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
+                if(closestDistance > GetDistance(neighbours[0],targetNode)){
+                    closestDistance= GetDistance(neighbours[0],targetNode);
+                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                    print("갱신! ");
+                    }
+                //print("left_frward_obstacle");
+                }
+                else{
+                    transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
                 }
             }
             if (left_backward_obstacle){
+    
                 if (neighbours[1].walkable){
-                nextNode=neighbours[1];
-                transform.position = Vector3.MoveTowards(transform.position, nextNode.worldPosition, moveSpeed * Time.deltaTime);
+                nextNode = true;
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
+                if(closestDistance > GetDistance(neighbours[1],targetNode)){
+                    closestDistance= GetDistance(neighbours[1],targetNode);
+                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                    print("갱신! ");
+                    }
+                //print("left_backward_obstacle\n\n\n");
                 }
-                // nextNode=neighbours[1];
-                // transform.position = Vector3.MoveTowards(transform.position, nextNode.worldPosition, moveSpeed * Time.deltaTime);
+                else{
+                    transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
+                }
+                
             }
             if(right_forward_obstacle){
+
                 if (neighbours[2].walkable){
-                nextNode=neighbours[2];
-                transform.position = Vector3.MoveTowards(transform.position, nextNode.worldPosition, moveSpeed * Time.deltaTime);
+                nextNode = true;
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
+                if(closestDistance > GetDistance(neighbours[2],targetNode)){
+                    closestDistance= GetDistance(neighbours[2],targetNode);
+                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                    print("갱신! ");
+                    }
+                //print("right_froward_obstacle");
                 }
+                else{
+                    transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
+                }
+        
                 
-                // nextNode=neighbours[2];
-                // transform.position = Vector3.MoveTowards(transform.position, nextNode.worldPosition, moveSpeed * Time.deltaTime);
             }
             if(right_backward_obstacle){
+
                 if (neighbours[3].walkable){
-                nextNode=neighbours[3];
-                transform.position = Vector3.MoveTowards(transform.position, nextNode.worldPosition, moveSpeed * Time.deltaTime);
+                nextNode = true;
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
+                if(closestDistance > GetDistance(neighbours[3],targetNode)){
+                    closestDistance= GetDistance(neighbours[3],targetNode);
+                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                    print("갱신! ");
+                    }
+                //print("right_backward_obstacle");
                 }
-                
-                // nextNode=neighbours[3];
-                // transform.position = Vector3.MoveTowards(transform.position, nextNode.worldPosition, moveSpeed * Time.deltaTime);
-            }
-            
-            if (nextNode==null){
-                Debug.Log("No valid path around the obstacle.");
-                // if (neighbours[2].walkable){transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);}
-                nextNode=neighbours[0];
-                transform.position = Vector3.MoveTowards(transform.position, nextNode.worldPosition, moveSpeed * Time.deltaTime);
+                else{
+                    transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
+                }
             
             }
+            currentNode=grid.NodeFromWorldPoint(transform.position);
+            if(nextNode==null || (Vector3.Distance(currentNode.worldPosition, CheckNode.worldPosition) <10f && previousCheckNode==CheckNode)){
+                //Debug.Log("No valid path around the obstacle.");
+                MoveDirectlyToTarget(target.position); 
+            
+            }
+            previousCheckNode=CheckNode;
+            print(closestDistance);
+            print(currentNode.gridX);
+            print(CheckNode.gridX);
+            print(currentNode==CheckNode);
 
         }
+        int GetDistance(Node nodeA, Node nodeB) {
+            int dstX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
+            int dstY = Mathf.Abs(nodeA.gridY - nodeB.gridY);
+            
+            if (dstX > dstY)
+                return 14*dstY + 10* (dstX-dstY);
 
-        // // 외곽을 따라 이동 왼쪽
-        // Node FindNextObstacleNode(List<Node> neighbours) {
-        //     // 외곽을 따라 이동할 다음 노드를 선택
-        //     Node nextNode = null;
-        //     float shortestDistance = float.MaxValue;
-        //     forward_obstacle = IsObstacle(currentNode.worldPosition,currentNode.worldPosition+forward_vector);
-        //     left_obstacle = IsObstacle(currentNode.worldPosition,currentNode.worldPosition+left_vector);
-        //     right_obstacle=IsObstacle(currentNode.worldPosition,currentNode.worldPosition+right_vector);
-        //     backward_obstacle = IsObstacle(currentNode.worldPosition, currentNode.worldPosition+backward_vector);
-        //     left_forward_obstacle = IsObstacle(currentNode.worldPosition, currentNode.worldPosition+left_vector+forward_vector);
-        //     left_backward_obstacle = IsObstacle(currentNode.worldPosition,currentNode.worldPosition+left_vector+backward_vector);
-        //     right_forward_obstacle = IsObstacle(currentNode.worldPosition,currentNode.worldPosition+right_vector+forward_vector);
-        //     right_backward_obstacle = IsObstacle(currentNode.worldPosition,currentNode.worldPosition+right_vector+backward_vector);
-        //     print($"forward: {forward_obstacle}, left: {left_obstacle}, right: {right_obstacle}, back{backward_obstacle}");
-            
-            
-        //     if (forward_obstacle){
-        //         //if (neighbour.gridX < currentNode.gridX && neighbour.walkable ){ nextNode = neighbour;}
-        //         nextNode = neighbours[0];// 왼쪽 노드
-        //     }
-        //     if (left_obstacle){
-        //         //if (neighbour.gridY < currentNode.gridY && neighbour.walkable ){ nextNode = neighbour;}
-        //         nextNode = neighbours[1]; // 아래 노드
-        //     }
-        //     if (right_obstacle){
-        //         //if (neighbour.gridY > currentNode.gridY && neighbour.walkable ){ nextNode = neighbour;}
-        //         nextNode = neighbours[2]; //위쪽 노드
-        //     }
-        //     if (backward_obstacle){
-        //         //if (neighbour.gridX > currentNode.gridX && neighbour.walkable ){ nextNode = neighbour;}
-        //         nextNode = neighbours[3]; //오른쪽?
-        //     }
-            
-        //     if (nextNode==null){
-        //         nextNode=neighbours[2];
-        //         //isFollowingObstacle = false; 
-        //     }
-            
-
-        //     return nextNode;
-        // }
+            return 14*dstX + 10 * (dstY-dstX);
+	}
 
         bool IsPathClear(Vector3 start, Vector3 end) {
             // 레이캐스트로 직선 경로의 장애물 여부 확인
@@ -231,11 +262,11 @@ namespace base2 {
             if (adjNode != null) {
                 Gizmos.color = Color.green; // 인접 노드 색상
                 foreach (Node neighbour in adjNode) {
-                    Gizmos.DrawCube(neighbour.worldPosition, Vector3.one*0.1f);
+                    Gizmos.DrawCube(neighbour.worldPosition, Vector3.one*2f);
                     
                 }
             }//!IsPathClear(transform.position, target.position)
-            if(false){
+            if(!IsPathClear(transform.position, target.position) && followobstacle_once==true){
                 Vector3 rayDirection = (target.position - transform.position).normalized;
                 if (Physics.Raycast(transform.position, rayDirection,raycastDist_target)){
                     Gizmos.color = Color.red;
@@ -275,7 +306,10 @@ namespace base2 {
                     Vector3 rayDirection6 = (target.position - target.position+forward_vector+right_vector).normalized;
                     Vector3 rayDirection7 = (target.position - target.position+backward_vector+right_vector).normalized;
                     Vector3 rayDirection8 = (target.position - target.position+backward_vector+left_vector).normalized;
-                    if (Physics.Raycast(transform.position, rayDirection5,raycastDist_obstacle_digonal) ){
+                    if (Physics.Raycast(transform.position, rayDirection5,raycastDist_obstacle_digonal) ||
+                       Physics.Raycast(transform.position, rayDirection6,raycastDist_obstacle_digonal) ||
+                       Physics.Raycast(transform.position, rayDirection7,raycastDist_obstacle_digonal) ||
+                       Physics.Raycast(transform.position, rayDirection8,raycastDist_obstacle_digonal) ){
                         Gizmos.color = Color.red;
                     }
                     else{
