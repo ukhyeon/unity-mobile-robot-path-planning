@@ -32,25 +32,48 @@ public class Grid : MonoBehaviour {
         }
     }
 
+    // public List<Node> GetNeighbours(Node node) {
+    //     List<Node> neighbours = new List<Node>();
+
+    //     for (int x = -1; x <= 1; x++) {
+
+    //             int checkX = node.gridX + x;
+    //             int checkY = node.gridY;
+
+    //             if (x == 0){
+    //                 checkY = checkY + 1;
+    //             }
+
+    //             if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY) {
+    //                 neighbours.Add(grid[checkX,checkY]);
+    //             }
+    //     }
+
+    //     return neighbours;
+    // }
+
     public List<Node> GetNeighbours(Node node) {
-        List<Node> neighbours = new List<Node>();
+            // 특정 노드의 이웃 노드들을 찾음
+            List<Node> neighbours = new List<Node>();
 
-        for (int x = -1; x <= 1; x++) {
-            for (int y = -1; y <= 1; y++) {
-                if (x == 0 && y == 0)
-                    continue;
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    // 자신을 제외한 주변 노드 확인
+                    if (x == 0 && y == 0) continue;
+                    if (x * y == 1 | x * y ==-1 ) continue;
 
-                int checkX = node.gridX + x;
-                int checkY = node.gridY + y;
+                    int checkX = node.gridX + x;
+                    int checkY = node.gridY + y;
 
-                if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY) {
-                    neighbours.Add(grid[checkX,checkY]);
+                    // 그리드 범위 내에 있는지 확인 후 추가
+                    if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY) {
+                        neighbours.Add(grid[checkX, checkY]);
+                    }
                 }
             }
-        }
 
-        return neighbours;
-    }
+            return neighbours;
+        }
     
 
     public Node NodeFromWorldPoint(Vector3 worldPosition) {
@@ -78,5 +101,7 @@ public class Grid : MonoBehaviour {
     //         }
     //     }
     // }
+
+
 }
 }
