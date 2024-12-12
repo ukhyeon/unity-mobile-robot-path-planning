@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Experimental.GlobalIllumination;
+using UnityEngine.UIElements;
 
 namespace base2 {
     public class Bug1Seeker : MonoBehaviour {
@@ -19,9 +20,7 @@ namespace base2 {
         private Node CheckNode;
         private List<Node> adjNode;
 
-        private bool isFollowingObstacle = false; // 장애물 외곽을 따라가는 중인지 여부
-        private int closestDistance = int.MaxValue; // 최단 거리 기록
-        private bool rotated = false;
+        private float closestDistance = float.MaxValue; // 최단 거리 기록
         private bool left_obstacle =false;
         private bool right_obstacle = false;
         private bool forward_obstacle = false;
@@ -30,6 +29,8 @@ namespace base2 {
         private bool left_backward_obstacle = false;
         private bool right_forward_obstacle = false;
         private bool right_backward_obstacle = false;
+        private bool renewd=false;
+    
 
         private Vector3 left_vector = new Vector3(-1,0,0);
         private Vector3 right_vector = new Vector3(1,0,0);
@@ -37,19 +38,14 @@ namespace base2 {
         private Vector3 forward_vector_test = new Vector3(0,1,0);
         private Vector3 backward_vector = new Vector3(0,0,-1);
         private bool followobstacle_once=true; 
-        int groundMove = 1;
         
 
         void Start() {
             grid = FindObjectOfType<Grid>();
             CheckNode=grid.NodeFromWorldPoint(transform.position);
-            previousCheckNode = grid.NodeFromWorldPoint(transform.position);
+            previousCheckNode = null;
             targetNode=grid.NodeFromWorldPoint(target.position);
         }
-        // void Awake()
-        // {
-        //     grid = GetComponent<Grid>();
-        // }
 
         void Update() {
             MoveTowardsTarget();
@@ -84,10 +80,9 @@ namespace base2 {
             List<Node> neighbours = grid.GetNeighbours(currentNode); //인접 노드 리스트
             // 왼쪽 앞 오른쪽 세개의 노드중, 앞쪽 노드가 walkable 이라면 계속해서 앞쪽으로 움직임, 이후 왼쪽 노드가 walkable 이라면 왼쪽 노드로 움직임.
 
-            int iter = 0;
-            int maxiter =2;
+            float dist =float.MaxValue;
             bool nextNode = false;
-            float shortestDistance = float.MaxValue;
+            renewd = false;
             forward_obstacle = IsObstacle(currentNode.worldPosition,currentNode.worldPosition+forward_vector);
             left_obstacle = IsObstacle(currentNode.worldPosition,currentNode.worldPosition+left_vector);
             right_obstacle=IsObstacle(currentNode.worldPosition,currentNode.worldPosition+right_vector);
@@ -104,9 +99,10 @@ namespace base2 {
                 if (neighbours[0].walkable){
                     nextNode = true;
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
-                    if(closestDistance > GetDistance(neighbours[0],targetNode)){
-                        closestDistance= GetDistance(neighbours[0],targetNode);
-                        CheckNode=grid.NodeFromWorldPoint(transform.position);
+                    dist=Vector3.Distance(neighbours[0].worldPosition,targetNode.worldPosition);
+                    if(closestDistance > dist){
+                        closestDistance= dist;
+                        CheckNode=grid.NodeFromWorldPoint(transform.position); renewd=true;
                         print("갱신! ");
                         }
                     }
@@ -115,9 +111,10 @@ namespace base2 {
                 if (neighbours[1].walkable){
                 nextNode=true;
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
-                if(closestDistance > GetDistance(neighbours[1],targetNode)){
-                    closestDistance= GetDistance(neighbours[1],targetNode);
-                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                dist=Vector3.Distance(neighbours[1].worldPosition,targetNode.worldPosition);
+                    if(closestDistance > dist){
+                    closestDistance= dist;
+                    CheckNode=grid.NodeFromWorldPoint(transform.position); renewd=true;
                     print("갱신! ");
                     }
                 //print("left_obstacle");
@@ -128,9 +125,10 @@ namespace base2 {
                 if (neighbours[2].walkable){
                 nextNode = true;
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
-                if(closestDistance > GetDistance(neighbours[2],targetNode)){
-                    closestDistance= GetDistance(neighbours[2],targetNode);
-                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                dist=Vector3.Distance(neighbours[2].worldPosition,targetNode.worldPosition);
+                    if(closestDistance > dist){
+                    closestDistance= dist;
+                    CheckNode=grid.NodeFromWorldPoint(transform.position); renewd=true;
                     print("갱신! ");
                     }
                 //print("right_obstacle");
@@ -141,22 +139,23 @@ namespace base2 {
                 if (neighbours[3].walkable){
                 nextNode = true;
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
-                if(closestDistance > GetDistance(neighbours[3],targetNode)){
-                    closestDistance= GetDistance(neighbours[3],targetNode);
-                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                dist=Vector3.Distance(neighbours[3].worldPosition,targetNode.worldPosition);
+                    if(closestDistance > dist){
+                    closestDistance= dist;
+                    CheckNode=grid.NodeFromWorldPoint(transform.position); renewd=true;
                     print("갱신! ");
                 }
                 //print("backward_obstacle");
                 }
             }
             if (left_forward_obstacle){
-
-                if (neighbours[0].walkable){
                 nextNode = true;
+                if (neighbours[0].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
-                if(closestDistance > GetDistance(neighbours[0],targetNode)){
-                    closestDistance= GetDistance(neighbours[0],targetNode);
-                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                dist=Vector3.Distance(neighbours[0].worldPosition,targetNode.worldPosition);
+                    if(closestDistance > dist){
+                    closestDistance= dist;
+                    CheckNode=grid.NodeFromWorldPoint(transform.position); renewd=true;
                     print("갱신! ");
                     }
                 //print("left_frward_obstacle");
@@ -166,13 +165,13 @@ namespace base2 {
                 }
             }
             if (left_backward_obstacle){
-    
-                if (neighbours[1].walkable){
                 nextNode = true;
+                if (neighbours[1].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
-                if(closestDistance > GetDistance(neighbours[1],targetNode)){
-                    closestDistance= GetDistance(neighbours[1],targetNode);
-                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                dist=Vector3.Distance(neighbours[1].worldPosition,targetNode.worldPosition);
+                    if(closestDistance > dist){
+                    closestDistance= dist;
+                    CheckNode=grid.NodeFromWorldPoint(transform.position); renewd=true;
                     print("갱신! ");
                     }
                 //print("left_backward_obstacle\n\n\n");
@@ -183,13 +182,13 @@ namespace base2 {
                 
             }
             if(right_forward_obstacle){
-
-                if (neighbours[2].walkable){
                 nextNode = true;
+                if (neighbours[2].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
-                if(closestDistance > GetDistance(neighbours[2],targetNode)){
-                    closestDistance= GetDistance(neighbours[2],targetNode);
-                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                dist=Vector3.Distance(neighbours[2].worldPosition,targetNode.worldPosition);
+                    if(closestDistance > dist){
+                    closestDistance= dist;
+                    CheckNode=grid.NodeFromWorldPoint(transform.position); renewd=true;
                     print("갱신! ");
                     }
                 //print("right_froward_obstacle");
@@ -205,9 +204,10 @@ namespace base2 {
                 if (neighbours[3].walkable){
                 nextNode = true;
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
-                if(closestDistance > GetDistance(neighbours[3],targetNode)){
-                    closestDistance= GetDistance(neighbours[3],targetNode);
-                    CheckNode=grid.NodeFromWorldPoint(transform.position);
+                dist=Vector3.Distance(neighbours[3].worldPosition,targetNode.worldPosition);
+                    if(closestDistance > dist){
+                    closestDistance= dist;
+                    CheckNode=grid.NodeFromWorldPoint(transform.position); renewd=true;
                     print("갱신! ");
                     }
                 //print("right_backward_obstacle");
@@ -218,27 +218,23 @@ namespace base2 {
             
             }
             currentNode=grid.NodeFromWorldPoint(transform.position);
-            if(nextNode==null || (Vector3.Distance(currentNode.worldPosition, CheckNode.worldPosition) <10f && previousCheckNode==CheckNode)){
+            //|| (Vector3.Distance(currentNode.worldPosition, CheckNode.worldPosition) <10f && previousCheckNode==CheckNode)
+            if(nextNode==false){
                 //Debug.Log("No valid path around the obstacle.");
                 MoveDirectlyToTarget(target.position); 
-            
             }
+            if(currentNode==CheckNode && CheckNode==previousCheckNode && renewd==false){
+                MoveDirectlyToTarget(target.position);
+                followobstacle_once=true;
+            }
+            print(currentNode==CheckNode && CheckNode==previousCheckNode && renewd==false);
             previousCheckNode=CheckNode;
-            print(closestDistance);
-            print(currentNode.gridX);
-            print(CheckNode.gridX);
-            print(currentNode==CheckNode);
+            //print(closestDistance);
+            //print(currentNode.gridX);
+            //print(CheckNode.gridX);
+            //print(currentNode==CheckNode);
 
         }
-        int GetDistance(Node nodeA, Node nodeB) {
-            int dstX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
-            int dstY = Mathf.Abs(nodeA.gridY - nodeB.gridY);
-            
-            if (dstX > dstY)
-                return 14*dstY + 10* (dstX-dstY);
-
-            return 14*dstX + 10 * (dstY-dstX);
-	}
 
         bool IsPathClear(Vector3 start, Vector3 end) {
             // 레이캐스트로 직선 경로의 장애물 여부 확인
@@ -286,6 +282,10 @@ namespace base2 {
                 //Gizmos.DrawRay(transform.position, rayDirection * raycastDist);
                 }
             else{
+                    if(!renewd){
+                        Gizmos.color=Color.blue;
+                        Gizmos.DrawCube(CheckNode.worldPosition,Vector3.one*2f);
+                    }
                     Vector3 rayDirection1 = (target.position - target.position+forward_vector).normalized;
                     Vector3 rayDirection2 = (target.position - target.position+left_vector).normalized;
                     Vector3 rayDirection3 = (target.position - target.position+right_vector).normalized;
