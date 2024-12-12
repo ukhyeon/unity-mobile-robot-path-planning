@@ -85,7 +85,27 @@ public class Grid : MonoBehaviour {
         int y = Mathf.RoundToInt((gridSizeY-1) * percentY);
         return grid[x,y];
     }
+    
+    public List<Node> Transform2target(Node startNode, Vector3 targetPosition) {
+            List<Node> nodeList = new List<Node>();
 
+            Vector3 startPos = startNode.worldPosition;
+            Vector3 direction = (targetPosition - startPos).normalized;
+            float distance = Vector3.Distance(startPos, targetPosition);
+            float stepSize = nodeRadius * 2;
+
+            for (float step = 0; step <= distance; step += stepSize) {
+                Vector3 pointOnLine = startPos + direction * step;
+                Node currentNode = NodeFromWorldPoint(pointOnLine);
+                if (currentNode != null && !nodeList.Contains(currentNode)) {
+                    nodeList.Add(currentNode);
+                }
+            }
+
+            return nodeList;
+        }
+
+    
     public List<Node> path;
     // void OnDrawGizmos() {
     //     Gizmos.DrawWireCube(transform.position,new Vector3(gridWorldSize.x,1,gridWorldSize.y));

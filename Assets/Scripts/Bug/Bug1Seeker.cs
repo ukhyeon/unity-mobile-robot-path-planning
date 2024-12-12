@@ -282,7 +282,7 @@ namespace base2 {
                 //Gizmos.DrawRay(transform.position, rayDirection * raycastDist);
                 }
             else{
-                    if(!renewd){
+                    if(!renewd && CheckNode != null){
                         Gizmos.color=Color.blue;
                         Gizmos.DrawCube(CheckNode.worldPosition,Vector3.one*2f);
                     }

@@ -1,0 +1,261 @@
+using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine.Experimental.GlobalIllumination;
+using UnityEngine.UIElements;
+
+namespace base2 {
+    public class Bug2Seeker : MonoBehaviour {
+        public Transform target;
+        public float moveSpeed = 10f;
+        public float raycastDist_target = 3f;
+        public float raycastDist_obstacle =3f;
+        public float raycastDist_obstacle_digonal =3f;
+
+        private Grid grid;
+        //Grid gird;
+        private Node currentNode;
+        private Node targetNode;
+        private Node StartNode;
+        private List<Node> Mline;
+
+
+        private float closestDistance = float.MaxValue; // 최단 거리 기록
+        private bool left_obstacle =false;
+        private bool right_obstacle = false;
+        private bool forward_obstacle = false;
+        private bool backward_obstacle = false;
+        private bool left_forward_obstacle=false;
+        private bool left_backward_obstacle = false;
+        private bool right_forward_obstacle = false;
+        private bool right_backward_obstacle = false;
+    
+        private Vector3 left_vector = new Vector3(-1,0,0);
+        private Vector3 right_vector = new Vector3(1,0,0);
+        private Vector3 forward_vector = new Vector3(0,0,1);
+        private Vector3 backward_vector = new Vector3(0,0,-1);
+        private bool follow_Mline=true; 
+        
+
+        void Start() {
+            grid = FindObjectOfType<Grid>();
+            StartNode=grid.NodeFromWorldPoint(transform.position);
+            targetNode=grid.NodeFromWorldPoint(target.position);
+            Mline=grid.Transform2target(StartNode,target.position);
+            }
+
+        void Update() {
+            MoveTowardsTarget();
+            }
+
+        void MoveTowardsTarget() {
+            currentNode = grid.NodeFromWorldPoint(transform.position);
+            if (!IsPathClear(transform.position, target.position) && follow_Mline ==true) { // 현재 노드와 목표 노드 사이의 장애물이 없는지 확인
+                    MoveDirectlyToTarget(target.position);                   // 없다면 목표 노드로 직선 방향 전진
+                    print("Move to target");
+                } 
+            else{
+                    //장애물에 부딪히면 외곽을 따라 이동
+                    FollowObstacle();
+                }
+            }
+
+        void MoveDirectlyToTarget(Vector3 target) {
+            // 직선 경로로 목표 노드로 이동
+            transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
+            }
+
+        void FollowObstacle() {
+            follow_Mline=false;
+            // 장애물의 외곽을 따라 이동
+            List<Node> neighbours = grid.GetNeighbours(currentNode); //인접 노드 리스트
+            bool nextNode = false;
+            forward_obstacle = IsObstacle(currentNode.worldPosition,currentNode.worldPosition+forward_vector);
+            left_obstacle = IsObstacle(currentNode.worldPosition,currentNode.worldPosition+left_vector);
+            right_obstacle=IsObstacle(currentNode.worldPosition,currentNode.worldPosition+right_vector);
+            backward_obstacle = IsObstacle(currentNode.worldPosition, currentNode.worldPosition+backward_vector);
+            left_forward_obstacle = IsObstacle2(currentNode.worldPosition, currentNode.worldPosition+left_vector+forward_vector);
+            left_backward_obstacle = IsObstacle2(currentNode.worldPosition,currentNode.worldPosition+left_vector+backward_vector);
+            right_forward_obstacle = IsObstacle2(currentNode.worldPosition,currentNode.worldPosition+right_vector+forward_vector);
+            right_backward_obstacle = IsObstacle2(currentNode.worldPosition,currentNode.worldPosition+right_vector+backward_vector);
+            //print($"forward:   {forward_obstacle},  left:   {left_obstacle},   right:   {right_obstacle},   back:   {backward_obstacle} ");
+            //print($"l_f:  {left_forward_obstacle}, l_b: {left_backward_obstacle},  r_f:  {right_forward_obstacle},  r_b:  {right_backward_obstacle} ");
+            
+            // 0: 왼쪽, 1: 아래, 2: 위쪽, 3: 오른쪽 
+            if (forward_obstacle){
+                if (neighbours[0].walkable){
+                    nextNode = true;
+                    transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
+                    }
+            }
+            if (left_obstacle){
+                if (neighbours[1].walkable){
+                nextNode=true;
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
+                //print("left_obstacle");
+                }
+                //print(neighbours[1].walkable);
+            }
+            if (right_obstacle){
+                if (neighbours[2].walkable){
+                nextNode = true;
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
+                
+                //print("right_obstacle");
+            }
+                
+            }
+            if (backward_obstacle){
+                if (neighbours[3].walkable){
+                nextNode = true;
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
+                
+                //print("backward_obstacle");
+                }
+            }
+            if (left_forward_obstacle){
+                nextNode = true;
+                if (neighbours[0].walkable){
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
+                
+                //print("left_frward_obstacle");
+                }
+                else{
+                    transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
+                }
+            }
+            if (left_backward_obstacle){
+                nextNode = true;
+                if (neighbours[1].walkable){
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
+                
+                //print("left_backward_obstacle\n\n\n");
+                }
+                else{
+                    transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
+                }
+                
+            }
+            if(right_forward_obstacle){
+                nextNode = true;
+                if (neighbours[2].walkable){
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
+            
+                //print("right_froward_obstacle");
+                }
+                else{
+                    transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
+                }
+        
+                
+            }
+            if(right_backward_obstacle){
+
+                if (neighbours[3].walkable){
+                nextNode = true;
+                transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
+                
+                //print("right_backward_obstacle");
+                }
+                else{
+                    transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
+                }
+            
+            }
+            currentNode=grid.NodeFromWorldPoint(transform.position);
+            if(nextNode==false){
+                MoveDirectlyToTarget(target.position); 
+            }
+            if(Mline.Contains(currentNode)){
+                MoveDirectlyToTarget(target.position);
+                follow_Mline=true;
+            }
+
+        }
+
+        bool IsPathClear(Vector3 start, Vector3 end) {
+            // 레이캐스트로 직선 경로의 장애물 여부 확인
+            Vector3 direction = (end - start).normalized;
+            return Physics.Raycast(start, direction, raycastDist_target);
+        }
+        bool IsObstacle(Vector3 start, Vector3 end) {
+            // 레이캐스트로 직선 경로의 장애물 여부 확인
+            Vector3 direction = (end - start).normalized;
+            return Physics.Raycast(start, direction, raycastDist_obstacle);
+        }
+        bool IsObstacle2(Vector3 start, Vector3 end) {
+            // 레이캐스트로 직선 경로의 장애물 여부 확인
+            Vector3 direction = (end - start).normalized;
+            return Physics.Raycast(start, direction, raycastDist_obstacle_digonal);
+        }
+
+        void OnDrawGizmos() {
+            float rayThickness = 0.6f;
+           
+            if (Mline != null){
+                Gizmos.color = Color.green;
+                foreach (Node line in Mline){
+                    Gizmos.DrawCube(line.worldPosition,Vector3.one*0.2f);
+                }
+            }
+            
+            if(!IsPathClear(transform.position, target.position) && follow_Mline==true){
+                Vector3 rayDirection = (target.position - transform.position).normalized;
+                if (Physics.Raycast(transform.position, rayDirection,raycastDist_target)){
+                    Gizmos.color = Color.red;
+                }
+                else{
+                    Gizmos.color = Color.blue;
+                }
+                Vector3 start = transform.position;
+                Vector3 end = start + rayDirection * raycastDist_target;
+                Vector3 right = Vector3.Cross(rayDirection, Vector3.up).normalized * rayThickness;
+                Vector3 up = Vector3.Cross(rayDirection, Vector3.right).normalized * rayThickness;
+
+                Gizmos.DrawLine(start + right, end + right); // 오른쪽 선
+                Gizmos.DrawLine(start - right, end - right); // 왼쪽 선
+                Gizmos.DrawLine(start + up, end + up);       // 위쪽 선
+                Gizmos.DrawLine(start - up, end - up);
+                }
+            else{
+                Vector3 rayDirection1 = (target.position - target.position+forward_vector).normalized;
+                Vector3 rayDirection2 = (target.position - target.position+left_vector).normalized;
+                Vector3 rayDirection3 = (target.position - target.position+right_vector).normalized;
+                Vector3 rayDirection4 = (target.position - target.position+backward_vector).normalized;
+                if (Physics.Raycast(transform.position, rayDirection1,raycastDist_obstacle) | Physics.Raycast(transform.position, rayDirection2,raycastDist_obstacle) |Physics.Raycast(transform.position, rayDirection3,raycastDist_obstacle)| Physics.Raycast(transform.position, rayDirection4,raycastDist_obstacle)){
+                    Gizmos.color = Color.red;
+                }
+                else{
+                    Gizmos.color = Color.blue;
+                }
+                Gizmos.DrawRay(transform.position,rayDirection1 * raycastDist_obstacle);
+                Gizmos.DrawRay(transform.position,rayDirection2 * raycastDist_obstacle);
+                Gizmos.DrawRay(transform.position,rayDirection3 * raycastDist_obstacle);
+                Gizmos.DrawRay(transform.position,rayDirection4 * raycastDist_obstacle);
+
+
+                Vector3 rayDirection5 = (target.position - target.position+forward_vector+left_vector).normalized;
+                Vector3 rayDirection6 = (target.position - target.position+forward_vector+right_vector).normalized;
+                Vector3 rayDirection7 = (target.position - target.position+backward_vector+right_vector).normalized;
+                Vector3 rayDirection8 = (target.position - target.position+backward_vector+left_vector).normalized;
+                if (Physics.Raycast(transform.position, rayDirection5,raycastDist_obstacle_digonal) ||
+                    Physics.Raycast(transform.position, rayDirection6,raycastDist_obstacle_digonal) ||
+                    Physics.Raycast(transform.position, rayDirection7,raycastDist_obstacle_digonal) ||
+                    Physics.Raycast(transform.position, rayDirection8,raycastDist_obstacle_digonal) ){
+                    Gizmos.color = Color.red;
+                }
+                else{
+                    Gizmos.color = Color.blue;
+                }
+                Gizmos.DrawRay(transform.position,rayDirection5 * raycastDist_obstacle_digonal);
+                Gizmos.DrawRay(transform.position,rayDirection6 * raycastDist_obstacle_digonal);
+                Gizmos.DrawRay(transform.position,rayDirection7 * raycastDist_obstacle_digonal);
+                Gizmos.DrawRay(transform.position,rayDirection8 * raycastDist_obstacle_digonal);
+
+            }
+            }
+        }   
+    }
+
+
+
+
