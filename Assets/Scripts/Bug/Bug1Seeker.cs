@@ -63,6 +63,11 @@ namespace base2 {
                     //장애물에 부딪히면 외곽을 따라 이동
                     FollowObstacle();
                     //print("FollowObstacle");                         // 현재 노드와 목표 노드 사이의 장애물이 있다면 장애물을 외곽을 따라감
+                    currentNode = grid.NodeFromWorldPoint(transform.position);
+                    if(currentNode==CheckNode && CheckNode==previousCheckNode && renewd==false){
+                    MoveDirectlyToTarget(target.position);
+                    followobstacle_once=true;
+            }
                 }
 
 
@@ -96,8 +101,8 @@ namespace base2 {
             
             // 0: 왼쪽, 1: 아래, 2: 위쪽, 3: 오른쪽 
             if (forward_obstacle){
+                nextNode = true;
                 if (neighbours[0].walkable){
-                    nextNode = true;
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
                     dist=Vector3.Distance(neighbours[0].worldPosition,targetNode.worldPosition);
                     if(closestDistance > dist){
@@ -106,10 +111,11 @@ namespace base2 {
                         print("갱신! ");
                         }
                     }
+                    return;
             }
             if (left_obstacle){
-                if (neighbours[1].walkable){
                 nextNode=true;
+                if (neighbours[1].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
                 dist=Vector3.Distance(neighbours[1].worldPosition,targetNode.worldPosition);
                     if(closestDistance > dist){
@@ -118,12 +124,13 @@ namespace base2 {
                     print("갱신! ");
                     }
                 //print("left_obstacle");
+                return;
                 }
                 //print(neighbours[1].walkable);
             }
             if (right_obstacle){
-                if (neighbours[2].walkable){
                 nextNode = true;
+                if (neighbours[2].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
                 dist=Vector3.Distance(neighbours[2].worldPosition,targetNode.worldPosition);
                     if(closestDistance > dist){
@@ -132,12 +139,13 @@ namespace base2 {
                     print("갱신! ");
                     }
                 //print("right_obstacle");
+                return;
             }
                 
             }
             if (backward_obstacle){
-                if (neighbours[3].walkable){
                 nextNode = true;
+                if (neighbours[3].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
                 dist=Vector3.Distance(neighbours[3].worldPosition,targetNode.worldPosition);
                     if(closestDistance > dist){
@@ -146,6 +154,7 @@ namespace base2 {
                     print("갱신! ");
                 }
                 //print("backward_obstacle");
+                return;
                 }
             }
             if (left_forward_obstacle){
@@ -159,6 +168,7 @@ namespace base2 {
                     print("갱신! ");
                     }
                 //print("left_frward_obstacle");
+                return;
                 }
                 else{
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
@@ -175,6 +185,7 @@ namespace base2 {
                     print("갱신! ");
                     }
                 //print("left_backward_obstacle\n\n\n");
+                return;
                 }
                 else{
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
@@ -192,6 +203,7 @@ namespace base2 {
                     print("갱신! ");
                     }
                 //print("right_froward_obstacle");
+                return;
                 }
                 else{
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
@@ -200,9 +212,8 @@ namespace base2 {
                 
             }
             if(right_backward_obstacle){
-
+                nextNode=true;
                 if (neighbours[3].walkable){
-                nextNode = true;
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
                 dist=Vector3.Distance(neighbours[3].worldPosition,targetNode.worldPosition);
                     if(closestDistance > dist){
@@ -211,23 +222,24 @@ namespace base2 {
                     print("갱신! ");
                     }
                 //print("right_backward_obstacle");
+                return;
                 }
                 else{
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
                 }
             
             }
-            currentNode=grid.NodeFromWorldPoint(transform.position);
+            //currentNode=grid.NodeFromWorldPoint(transform.position);
             //|| (Vector3.Distance(currentNode.worldPosition, CheckNode.worldPosition) <10f && previousCheckNode==CheckNode)
             if(nextNode==false){
                 //Debug.Log("No valid path around the obstacle.");
                 MoveDirectlyToTarget(target.position); 
             }
-            if(currentNode==CheckNode && CheckNode==previousCheckNode && renewd==false){
-                MoveDirectlyToTarget(target.position);
-                followobstacle_once=true;
-            }
-            print(currentNode==CheckNode && CheckNode==previousCheckNode && renewd==false);
+            // if(currentNode==CheckNode && CheckNode==previousCheckNode && renewd==false){
+            //     MoveDirectlyToTarget(target.position);
+            //     followobstacle_once=true;
+            // }
+            //print(currentNode==CheckNode && CheckNode==previousCheckNode && renewd==false);
             previousCheckNode=CheckNode;
             //print(closestDistance);
             //print(currentNode.gridX);

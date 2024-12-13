@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.UIElements;
+using System.Net.Http.Headers;
 
 namespace base2 {
     public class Bug2Seeker : MonoBehaviour {
@@ -56,6 +57,12 @@ namespace base2 {
             else{
                     //장애물에 부딪히면 외곽을 따라 이동
                     FollowObstacle();
+
+                    currentNode=grid.NodeFromWorldPoint(transform.position);
+                    if(Mline.Contains(currentNode)){
+                        MoveDirectlyToTarget(target.position);
+                        follow_Mline=true;
+                    }
                 }
             }
 
@@ -80,35 +87,41 @@ namespace base2 {
             //print($"forward:   {forward_obstacle},  left:   {left_obstacle},   right:   {right_obstacle},   back:   {backward_obstacle} ");
             //print($"l_f:  {left_forward_obstacle}, l_b: {left_backward_obstacle},  r_f:  {right_forward_obstacle},  r_b:  {right_backward_obstacle} ");
             
+        
+
             // 0: 왼쪽, 1: 아래, 2: 위쪽, 3: 오른쪽 
             if (forward_obstacle){
+                nextNode = true;
+                //if(neighbours[2].walkable){ transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);}
                 if (neighbours[0].walkable){
-                    nextNode = true;
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
+                    return;
                     }
             }
             if (left_obstacle){
+                nextNode = true;
                 if (neighbours[1].walkable){
-                nextNode=true;
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
+                return;
+                
                 //print("left_obstacle");
                 }
                 //print(neighbours[1].walkable);
             }
             if (right_obstacle){
-                if (neighbours[2].walkable){
                 nextNode = true;
+                if (neighbours[2].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
+                return;
                 
                 //print("right_obstacle");
             }
-                
             }
             if (backward_obstacle){
-                if (neighbours[3].walkable){
                 nextNode = true;
+                if (neighbours[3].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
-                
+                return;
                 //print("backward_obstacle");
                 }
             }
@@ -116,22 +129,25 @@ namespace base2 {
                 nextNode = true;
                 if (neighbours[0].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
-                
+                return;
                 //print("left_frward_obstacle");
                 }
                 else{
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
+                    return;
                 }
             }
             if (left_backward_obstacle){
                 nextNode = true;
                 if (neighbours[1].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[1].worldPosition, moveSpeed * Time.deltaTime);
-                
+                return;
                 //print("left_backward_obstacle\n\n\n");
                 }
                 else{
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
+                    return;
+
                 }
                 
             }
@@ -139,36 +155,38 @@ namespace base2 {
                 nextNode = true;
                 if (neighbours[2].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
-            
+                return;
                 //print("right_froward_obstacle");
                 }
                 else{
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
+                    return;
                 }
         
                 
             }
             if(right_backward_obstacle){
-
-                if (neighbours[3].walkable){
                 nextNode = true;
+                if (neighbours[3].walkable){
                 transform.position = Vector3.MoveTowards(transform.position, neighbours[3].worldPosition, moveSpeed * Time.deltaTime);
-                
+                return;
                 //print("right_backward_obstacle");
                 }
                 else{
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[2].worldPosition, moveSpeed * Time.deltaTime);
+                    return;
                 }
             
             }
+
             currentNode=grid.NodeFromWorldPoint(transform.position);
             if(nextNode==false){
                 MoveDirectlyToTarget(target.position); 
             }
-            if(Mline.Contains(currentNode)){
-                MoveDirectlyToTarget(target.position);
-                follow_Mline=true;
-            }
+            // if(Mline.Contains(currentNode)){
+            //     MoveDirectlyToTarget(target.position);
+            //     follow_Mline=true;
+            // }
 
         }
 

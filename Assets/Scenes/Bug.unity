@@ -543,10 +543,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8461a3ce5d8865aab90c5f524878e87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offset: {x: 0, y: 20, z: 0}
+  offset: {x: 0, y: 15, z: 0}
   target: {fileID: 897759704}
-  translateSpeed: 5
-  rotationSpeed: 5
+  translateSpeed: 2
+  rotationSpeed: 1
 --- !u!81 &216041436
 AudioListener:
   m_ObjectHideFlags: 0
@@ -855,7 +855,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   gridWorldSize: {x: 100, y: 100}
-  nodeRadius: 0.5
+  nodeRadius: 0.1
 --- !u!1 &741887416
 GameObject:
   m_ObjectHideFlags: 0
@@ -1244,6 +1244,8 @@ GameObject:
   - component: {fileID: 897759707}
   - component: {fileID: 897759706}
   - component: {fileID: 897759713}
+  - component: {fileID: 897759714}
+  - component: {fileID: 897759715}
   m_Layer: 0
   m_Name: Seeker
   m_TagString: Untagged
@@ -1259,7 +1261,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 897759703}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 18.9, y: 0, z: -34}
+  m_LocalPosition: {x: 38.9, y: 0, z: -41.5}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1337,16 +1339,48 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 897759703}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 84c6abdd0a7a2d02983c8e3d2b15d871, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 2076046488}
   moveSpeed: 10
-  raycastDist_target: 20
-  raycastDist_obstacle: 0.8
-  raycastDist_obstacle_digonal: 1
+  raycastDist_target: 3
+  raycastDist_obstacle: 3
+  raycastDist_obstacle_digonal: 4
+--- !u!114 &897759714
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 897759703}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6747ff11e98ec0db1b3ea4e5a90235b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 2076046488}
+  moveSpeed: 10
+  raycastDist: 3
+--- !u!114 &897759715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 897759703}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abffaea5b2dc184208454461b6f21d1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 2076046488}
+  moveSpeed: 20
+  raycastDist_target: 3
+  raycastDist_obstacle: 3
+  raycastDist_obstacle_digonal: 3
 --- !u!1 &1037313770
 GameObject:
   m_ObjectHideFlags: 0
@@ -1885,7 +1919,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1243238027}
   m_LocalRotation: {x: -0, y: 0.70697427, z: -0, w: 0.7072393}
-  m_LocalPosition: {x: -2.7128687, y: 0.2, z: -15.687792}
+  m_LocalPosition: {x: -2.34, y: 0.2, z: -17.22}
   m_LocalScale: {x: 3.3482437, y: 1, z: 0.80000055}
   m_ConstrainProportionsScale: 0
   m_Children: []
