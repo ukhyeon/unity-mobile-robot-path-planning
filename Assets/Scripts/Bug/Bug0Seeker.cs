@@ -15,7 +15,7 @@ namespace base2 {
         private Grid grid;
         //Grid gird;
         private Node currentNode;
-
+        private List<Node> PathNodeList = new List<Node>();
         private bool left_obstacle =false;
         private bool right_obstacle = false;
         private bool forward_obstacle = false;
@@ -44,6 +44,7 @@ namespace base2 {
 
         void MoveTowardsTarget() {
             currentNode = grid.NodeFromWorldPoint(transform.position);
+            PathNodeList.Add(currentNode);
             if (!IsPathClear(transform.position, target.position) && newpath ==true) { // 현재 노드와 목표 노드 사이의 장애물이 없는지 확인
                     MoveDirectlyToTarget(target.position);                   // 없다면 목표 노드로 직선 방향 전진
                     print("Move to target");
@@ -195,6 +196,10 @@ namespace base2 {
 
         void OnDrawGizmos() {
             float rayThickness = 0.6f;
+            foreach(Node n in PathNodeList){
+                Gizmos.color=Color.green;
+                Gizmos.DrawCube(n.worldPosition,Vector3.one);
+            }
     
             if(!IsPathClear(transform.position, target.position) && newpath==true){
                 Vector3 rayDirection = (target.position - transform.position).normalized;

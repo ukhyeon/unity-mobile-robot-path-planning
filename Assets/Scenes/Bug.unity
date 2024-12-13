@@ -1261,7 +1261,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 897759703}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 38.9, y: 0, z: -41.5}
+  m_LocalPosition: {x: 39.9, y: 0, z: -42.8}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1345,26 +1345,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 2076046488}
-  moveSpeed: 10
+  moveSpeed: 20
   raycastDist_target: 3
   raycastDist_obstacle: 3
-  raycastDist_obstacle_digonal: 4
+  raycastDist_obstacle_digonal: 3
 --- !u!114 &897759714
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 897759703}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6747ff11e98ec0db1b3ea4e5a90235b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 2076046488}
-  moveSpeed: 10
-  raycastDist: 3
---- !u!114 &897759715
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1373,11 +1358,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 897759703}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: abffaea5b2dc184208454461b6f21d1f, type: 3}
+  m_Script: {fileID: 11500000, guid: 6747ff11e98ec0db1b3ea4e5a90235b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 2076046488}
   moveSpeed: 20
+  raycastDist_target: 3
+  raycastDist_obstacle: 3
+  raycastDist_obstacle_digonal: 3
+--- !u!114 &897759715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 897759703}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abffaea5b2dc184208454461b6f21d1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 2076046488}
+  moveSpeed: 10
   raycastDist_target: 3
   raycastDist_obstacle: 3
   raycastDist_obstacle_digonal: 3
@@ -3435,7 +3437,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2076046484}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -24.2, y: 0, z: 41.2}
+  m_LocalPosition: {x: -29.4, y: 0, z: 41.1}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []

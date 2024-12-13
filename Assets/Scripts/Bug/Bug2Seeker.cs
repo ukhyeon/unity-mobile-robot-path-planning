@@ -11,6 +11,7 @@ namespace base2 {
         public float raycastDist_target = 3f;
         public float raycastDist_obstacle =3f;
         public float raycastDist_obstacle_digonal =3f;
+        private List<Node> PathNodeList = new List<Node>();
 
         private Grid grid;
         //Grid gird;
@@ -50,6 +51,7 @@ namespace base2 {
 
         void MoveTowardsTarget() {
             currentNode = grid.NodeFromWorldPoint(transform.position);
+            PathNodeList.Add(currentNode);
             if (!IsPathClear(transform.position, target.position) && follow_Mline ==true) { // 현재 노드와 목표 노드 사이의 장애물이 없는지 확인
                     MoveDirectlyToTarget(target.position);                   // 없다면 목표 노드로 직선 방향 전진
                     print("Move to target");
@@ -208,9 +210,14 @@ namespace base2 {
 
         void OnDrawGizmos() {
             float rayThickness = 0.6f;
+
+            foreach(Node n in PathNodeList){
+                Gizmos.color=Color.green;
+                Gizmos.DrawCube(n.worldPosition,Vector3.one);
+            }
            
             if (Mline != null){
-                Gizmos.color = Color.green;
+                Gizmos.color = Color.black;
                 foreach (Node line in Mline){
                     Gizmos.DrawCube(line.worldPosition,Vector3.one*0.2f);
                 }

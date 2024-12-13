@@ -12,6 +12,7 @@ namespace base2 {
         public float raycastDist_obstacle_digonal =3f;
 
         private Grid grid;
+        private List<Node> PathNodeList = new List<Node>();
         //Grid gird;
         private Node currentNode;
         private Node previousCheckNode;
@@ -53,6 +54,7 @@ namespace base2 {
 
         void MoveTowardsTarget() {
             currentNode = grid.NodeFromWorldPoint(transform.position);
+            PathNodeList.Add(currentNode);
             adjNode = grid.GetNeighbours(currentNode); // 타겟 노드좌표                              
             // }!IsPathClear(transform.position, target.position)
             if (!IsPathClear(transform.position, target.position) && followobstacle_once ==true) { // 현재 노드와 목표 노드 사이의 장애물이 없는지 확인
@@ -102,6 +104,7 @@ namespace base2 {
             // 0: 왼쪽, 1: 아래, 2: 위쪽, 3: 오른쪽 
             if (forward_obstacle){
                 nextNode = true;
+                
                 if (neighbours[0].walkable){
                     transform.position = Vector3.MoveTowards(transform.position, neighbours[0].worldPosition, moveSpeed * Time.deltaTime);
                     dist=Vector3.Distance(neighbours[0].worldPosition,targetNode.worldPosition);
@@ -110,8 +113,9 @@ namespace base2 {
                         CheckNode=grid.NodeFromWorldPoint(transform.position); renewd=true;
                         print("갱신! ");
                         }
+                        return;
                     }
-                    return;
+                    
             }
             if (left_obstacle){
                 nextNode=true;
@@ -267,13 +271,12 @@ namespace base2 {
         void OnDrawGizmos() {
             float rayThickness = 0.6f;
             //그리드 전체를 표시
-            if (adjNode != null) {
-                Gizmos.color = Color.green; // 인접 노드 색상
-                foreach (Node neighbour in adjNode) {
-                    Gizmos.DrawCube(neighbour.worldPosition, Vector3.one*2f);
-                    
-                }
-            }//!IsPathClear(transform.position, target.position)
+            
+            foreach(Node n in PathNodeList){
+                Gizmos.color=Color.green;
+                Gizmos.DrawCube(n.worldPosition,Vector3.one);
+            }
+
             if(!IsPathClear(transform.position, target.position) && followobstacle_once==true){
                 Vector3 rayDirection = (target.position - transform.position).normalized;
                 if (Physics.Raycast(transform.position, rayDirection,raycastDist_target)){
