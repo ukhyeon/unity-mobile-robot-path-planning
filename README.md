@@ -2,8 +2,6 @@
 
 Bug0/1/2, Dijkstra, A\*, RRT, RRT\* 일곱 가지 경로계획 알고리즘을 Unity로 구현했습니다. 같은 장애물 맵과 같은 시작·목표 쌍에서 성공률, 계획 시간, 경로 길이, 충돌 여부를 측정해 비교했습니다.
 
-[unity-mobile-robot-turnover-prevention](https://github.com/ukhyeon/unity-mobile-robot-turnover-prevention)(ZMP 기반 전복 방지)에서 경로계획 부분만 분리한 저장소이고 커밋 이력도 그대로 가져왔습니다.
-
 > 📒 **알고리즘 설명, 실험 설정, 결과 해석 전체는 [Notion 문서](https://app.notion.com/p/327fcf2876fa80fb891ffb8a122fb7b9)(「경로계획 알고리즘 정량 비교」 토글)에 있습니다.** 이 README에는 요약만 남겼습니다.
 
 | A\* | Dijkstra |
