@@ -16,10 +16,24 @@ namespace Benchmark
         // Unity -batchmode -projectPath <path> -executeMethod Benchmark.BenchmarkLauncher.RunBatch -logFile <log>
         public static void RunBatch() => Launch();
 
-        static void Launch()
+        [MenuItem("Tools/Path Planning Benchmark/Record Demo Frames")]
+        public static void RecordDemo()
+        {
+            if (EditorApplication.isPlaying) return;
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            Launch(DemoRecorder.RunFlagKey);
+        }
+
+        // 렌더링이 필요하므로 -nographics 없이 실행
+        // Unity -batchmode -projectPath <path> -executeMethod Benchmark.BenchmarkLauncher.RecordDemoBatch -logFile <log>
+        public static void RecordDemoBatch() => Launch(DemoRecorder.RunFlagKey);
+
+        static void Launch() => Launch(PathPlanningBenchmark.RunFlagKey);
+
+        static void Launch(string flag)
         {
             EditorSceneManager.OpenScene("Assets/Scenes/Astar.unity");
-            SessionState.SetBool(PathPlanningBenchmark.RunFlagKey, true);
+            SessionState.SetBool(flag, true);
             EditorApplication.EnterPlaymode();
         }
     }
