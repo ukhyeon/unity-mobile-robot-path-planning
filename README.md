@@ -29,3 +29,18 @@ Unity에서 모바일 로봇의 경로계획 알고리즘(Bug0/1/2, Dijkstra, A\
 - **Bug0Seeker / Bug1Seeker / Bug2Seeker**: 목표 방향으로 직진하다가 장애물을 만나면 벽을 따라 도는 방식의 Bug 계열 알고리즘입니다. 이동 경로는 Gizmos로 시각화됩니다.
 
 씬에서 Play를 누른 뒤 Scene 뷰에서 Gizmos를 켜면 격자, 탐색 트리, 최종 경로를 볼 수 있습니다.
+
+## 정량 평가 (Benchmark)
+
+`Assets/Benchmark/`에 알고리즘 코드를 수정하지 않고 각 씬의 컴포넌트를 그대로 호출하는 측정 하네스가 있습니다. 4개 씬이 공유하는 장애물 맵에서 시작·목표 쌍 31개(원본 1 + 무작위 30)를 모든 알고리즘에 똑같이 적용합니다.
+
+```bash
+# 1) Unity에서 측정 (에디터 메뉴: Tools > Path Planning Benchmark > Run 도 가능)
+Unity -batchmode -nographics -projectPath . -executeMethod Benchmark.BenchmarkLauncher.RunBatch -logFile bench.log
+# 2) 집계·그림 (pandas, matplotlib, scipy)
+python3 Tools/analyze_benchmark.py
+```
+
+결과는 `BenchmarkResults/`에 저장됩니다. 요약표는 [`summary.md`](BenchmarkResults/summary.md), 그림은 `figures/`에 있습니다.
+
+RRT/RRT\*의 `RetracePath`에는 측정용 안전장치가 하나 들어 있습니다. 새 노드가 목표 격자 노드와 겹치면 `targetNode.parent`가 자기 자신이 되어 무한 루프에 빠지는데, 이 루프를 끊고 해당 시행을 실패로 기록합니다. 그 외의 동작은 원본과 같습니다.

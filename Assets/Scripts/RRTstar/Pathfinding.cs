@@ -122,13 +122,22 @@ namespace RRTstar
             return new Vector3(randomX, 0, randomZ);
         }
 
+        // 벤치마크용: 직전 RetracePath가 순환 참조 때문에 중단됐는지 여부
+        [HideInInspector] public bool lastRetraceAborted;
+
         Vector3[] RetracePath(Node startNode, Node endNode) {
             List<Node> path = new List<Node>();
             Node currentNode = endNode;
+            lastRetraceAborted = false;
 
             while (currentNode != startNode) {
                 if(currentNode ==null){
                     Debug.Log("currentNode is Null");
+                    break;
+                }
+                // 안전장치: newNode가 targetNode와 같은 격자 노드면 targetNode.parent가 자기 자신이 되어 무한 루프에 빠짐
+                if (path.Count > grid.MaxSize) {
+                    lastRetraceAborted = true;
                     break;
                 }
                 path.Add(currentNode);

@@ -1,0 +1,9 @@
+{
+  "unity": "2021.3.36f1",
+  "cpu": "11th Gen Intel(R) Core(TM) i5-11400 @ 2.60GHz",
+  "timestamp": "2026-10-20 17:08:54",
+  "pairs": 31, "pair_seed": 2024, "rrt_seeds": 20, "grid_timing_repeats": 5,
+  "bug_speed": 20, "bug_dt": 0.0166667, "bug_timeout": 90, "bug_goal_tolerance": 1,
+  "min_pair_distance": 50, "min_endpoint_clearance": 2.5,
+  "elapsed_s": 45.5527
+}

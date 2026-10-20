@@ -99,12 +99,21 @@ namespace RRT
 
             return new Vector3(randomX, 0, randomZ);  // y 값은 0으로 고정, 2D 환경을 가정
         }
+        // 벤치마크용: 직전 RetracePath가 순환 참조 때문에 중단됐는지 여부
+        [HideInInspector] public bool lastRetraceAborted;
+
         // 목표 노드에서 시작노드까지 parent를 따라가며 경로를 추적, 실제 경로를 반환
         Vector3[] RetracePath(Node startNode, Node endNode) {
                 List<Node> path = new List<Node>();
                 Node currentNode = endNode;
-                
+                lastRetraceAborted = false;
+
                 while (currentNode != startNode) {
+                    // 안전장치: newNode가 targetNode와 같은 격자 노드면 targetNode.parent가 자기 자신이 되어 무한 루프에 빠짐
+                    if (currentNode == null || path.Count > grid.MaxSize) {
+                        lastRetraceAborted = true;
+                        break;
+                    }
                     path.Add(currentNode);
                     currentNode = currentNode.parent;
                 }
